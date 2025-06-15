@@ -53,7 +53,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     //Creates the GLFW window object and sets the object to the create window function
-    GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "Zera", NULL, NULL);
 
     //Error handeling for window
     if (window == NULL)
