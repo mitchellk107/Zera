@@ -30,82 +30,123 @@ const char* fragmentShaderSource = "#version 330 core\n"
 int main()
 {
     // Setup that tells openGL what version and that we want to use modern OpenGL
-    // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // --------------------
+    // This creates a window object pointer and assigning it to the glfwcreate window output
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    // Error checking
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
+    // This tells opengl what window we are working with
     glfwMakeContextCurrent(window);
+
+    // opengl calls this to adjust the window size
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    // ---------------------------------------
+    // This function checks for GLAD errors
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
-
-    // ------------------------------------
+    // This is an unsigned int that holds the reference number (ID) for a shader object created by OpenGL.
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    // This function takes in our vertexShader number and vertex shader code
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    //This compiles the shader into GPU code
     glCompileShader(vertexShader);
+
+    // This int is to hold the value of a returned OpenGL error code
     int success;
+    // This is a "String" in C as the OpenGL functions use C
     char infoLog[512];
+    // This function loggs the compile status of the vertexShader, as specified in the second peramiter parameter
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    // This checks to see if success is equal to 0
     if (!success)
     {
+        // This gets the info log from open gl
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        // This prints the error log from the vertex shader
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
+
+    //This is providing a reference number of the newly made fragment shader object
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    //This provides openGL with the fragment shader code
     glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    // This compiles the fragment shader into GPU code
     glCompileShader(fragmentShader);
+    //This gets the compile status and success numnber for the fragment shader
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    //This checks if Success is equal to 0
     if (!success)
     {
+        //This stores the fragment shader infoLog information
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        //Logs the information
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
+
+    //This is an unsigned int that is provided a refrence number to a created program
     unsigned int shaderProgram = glCreateProgram();
+    //This stages the already compiled vertex shader on to the GPU
     glAttachShader(shaderProgram, vertexShader);
+    //This stages the already compiled fragment shader on to the GPU
     glAttachShader(shaderProgram, fragmentShader);
+    //This links together all of the shader prgrams that are compiled on the GPU
     glLinkProgram(shaderProgram);
+    //This gets the compile status of the shader program
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    //Checks success is equal to 0
     if (!success) {
+        //Gets the program log info 
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        //This ouputs the log information to the console
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
     }
+
+    //This is cleanup for the vertex and fragment shaders
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+    //This is an array of floats called vertices to draw our rectangle
     // ------------------------------------------------------------------
-    float vertices[] = {
+    float vertices[] = {     // X, Y, Z
          0.5f,  0.5f, 0.0f,  // top right
          0.5f, -0.5f, 0.0f,  // bottom right
         -0.5f, -0.5f, 0.0f,  // bottom left
         -0.5f,  0.5f, 0.0f   // top left 
     };
+    //This is an array of unsigned ints called indices that I am going to struggle on XD
     unsigned int indices[] = {  // note that we start from 0!
         0, 1, 3,  // first Triangle
         1, 2, 3   // second Triangle
     };
+    //Unsigned ints for the VBO, VAO, EBO;
     unsigned int VBO, VAO, EBO;
+
+    //This is generating one vertex array object and storing its ID in VAO
     glGenVertexArrays(1, &VAO);
+    //This generates a buffer object with memory we can work with on the gpu and stores its ID in VBO
     glGenBuffers(1, &VBO);
+    //This generates a buffer object with memory we can work with on the gpu and stores its ID in EBO
     glGenBuffers(1, &EBO);
+
+    //This function by "Binding the vertexarray" it basically activates the VAO making it the active current one (openGL is a state machine)
     glBindVertexArray(VAO);
 
+    //This binds the buffer, basically enabling the VBO
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //??????????
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
